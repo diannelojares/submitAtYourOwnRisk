@@ -1,0 +1,77 @@
+#include <algorithm>
+#include <vector>
+#include <map>
+#include <iostream>
+#include <fstream>
+using namespace std;
+
+typedef vector<int> vi;
+typedef vector<bool> vb;
+typedef vector<string> vs;
+
+typedef map<string, int> msi; 
+typedef map<int, string> mis;
+vector<vi> adj_list; //adjacency list
+vb dfs_num; // visited 
+
+msi towns_msi; //stores the node index by storing the town as a key
+mis towns_mis; ////stores the town index by storing the node index as a key
+
+string  start, goal, town;
+bool gr; //goal reached
+int nxtu; //global variable
+
+void dfs(int u)
+{
+	dfs_num[u] = true;
+	
+	if(towns_mis[u] == goal)
+		gr = true;
+	cout << towns_mis[u] << (!gr ? "->" : "\n"); //print the town, print -> if gr is true
+
+	for(int j=0; j<(int)adj_list[u].size() && !gr; j++) //short circuit the loop if gr is true 
+	{
+		nxtu = adj_list[u][j];
+		if(!dfs_num[nxtu])
+			dfs(nxtu);
+	}
+}
+int main()
+{
+	int V, total_neighbors, id, weight;
+	
+	//freopen("rinconada.in", "r", stdin); // file open using C
+	ifstream finn("exer1.in"); // file open using C++
+	while((finn >> V))
+	{
+		gr = false; // set the goal reached as false
+		adj_list.assign(V, vi()); //assign V(vertices or node) size of vi() for storing the neighbor vertices in the adjacency list
+		dfs_num.assign(V, false); // set all node as unvisited
+		towns_msi.clear(); 
+		towns_mis.clear();
+//------input the towns----------------------------------------------------------------------------------------------------------------
+		for(int i=0; i<V; i++)
+		{	
+			finn >> town;
+			towns_msi[town] = i;
+			towns_mis[i] = town;
+		}
+//------input the neighbor of the towns-----------------------------------------------------------------------------------------------
+		for(int i=0; i<V; i++)
+		{
+			finn >> total_neighbors;
+			for(int j=0; j<total_neighbors; j++)
+			{
+				finn >> town;
+				adj_list[i].push_back(towns_msi[town]);
+			}
+		}
+//------input the start and goal town--------------------------------------------------------------------------------------------------
+		finn >> start >> goal;
+		dfs(towns_msi[start]);
+		cout << endl ;
+
+		
+	}
+	return 0;
+}
